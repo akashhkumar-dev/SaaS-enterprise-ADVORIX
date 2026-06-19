@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SaaS Enterprise OS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{box-sizing:border-box;font-family:Arial}
+body{margin:0;background:#f1f5f9;color:#111;transition:.3s}
+.dark{background:#020617;color:white}
+nav{height:70px;display:flex;justify-content:space-between;align-items:center;padding:0 25px;background:white}
+.dark nav{background:#111827}
+button{background:#6366f1;color:white;border:0;padding:10px 15px;border-radius:10px;cursor:pointer}
+input,textarea,select{width:100%;padding:12px;margin:5px 0;border-radius:10px}
+.hero{padding:60px;text-align:center;background:linear-gradient(135deg,#6366f1,#9333ea);color:white}
+.main{display:flex}
+.sidebar{width:230px;background:#111827;color:white;min-height:calc(100vh - 70px);padding:20px}
+.sidebar p{padding:10px;cursor:pointer;border-radius:8px}
+.sidebar p:hover{background:#6366f1}
+.content{flex:1;padding:25px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.card{background:white;padding:20px;border-radius:18px;box-shadow:0 10px 25px #0002;margin:15px 0}
+.dark .card{background:#1e293b}
+.kanban{display:flex;gap:15px}
+.column{flex:1;background:#ddd;padding:15px;min-height:250px;border-radius:15px}
+.task{background:white;padding:10px;margin:10px;border-radius:10px;cursor:grab}
+.dark .task{background:#334155}
+table{width:100%;border-collapse:collapse}
+td,th{padding:10px;border-bottom:1px solid #ddd}
+</style>
+</head>
+
+<body>
+
+<nav>
+<h2>🚀 SaaS OS</h2>
+<button onclick="theme()">Theme</button>
+</nav>
+
+<section class="hero">
+<h1>Enterprise SaaS Platform</h1>
+<p>CRM | Analytics | AI | Projects</p>
+<button onclick="dashboard()">Launch</button>
+</section>
+
+<div class="main">
+
+<div class="sidebar">
+<p onclick="dashboard()">Dashboard</p>
+<p onclick="crm()">CRM</p>
+<p onclick="projects()">Projects</p>
+<p onclick="analytics()">Analytics</p>
+<p onclick="ai()">AI Workspace</p>
+<p onclick="calendar()">Calendar</p>
+<p onclick="team()">Team</p>
+<p onclick="files()">Files</p>
+<p onclick="settings()">Settings</p>
+</div>
+
+<div class="content" id="app"></div>
+
+</div>
+
+
+<script>
+
+let app=document.getElementById("app");
+let leads=JSON.parse(localStorage.leads||"[]");
+let tasks=JSON.parse(localStorage.tasks||"[]");
+
+function theme(){
+document.body.classList.toggle("dark");
+}
+
+function dashboard(){
+
+app.innerHTML=`
+<h1>Dashboard</h1>
+<div class="cards">
+<div class="card">$50K Revenue</div>
+<div class="card">15000 Users</div>
+<div class="card">90% Growth</div>
+</div>
+<canvas id="chart"></canvas>
+`;
+
+new Chart(document.getElementById("chart"),{
+type:"line",
+data:{
+labels:["Jan","Feb","Mar","Apr"],
+datasets:[{label:"Sales",data:[100,300,500,800]}]
+}
+});
+}
+
+
+function crm(){
+
+app.innerHTML=`
+<h1>CRM</h1>
+<input id="lead" placeholder="Lead Name">
+<button onclick="addLead()">Add Lead</button>
+<table>
+<tr><th>Name</th><th>Status</th><th></th></tr>
+<tbody id="leadData"></tbody>
+</table>`;
+
+showLeads();
+}
+
+function addLead(){
+let n=document.getElementById("lead").value;
+leads.push({name:n,status:"New"});
+localStorage.leads=JSON.stringify(leads);
+showLeads();
+}
+
+function showLeads(){
+let box=document.getElementById("leadData");
+if(!box)return;
+box.innerHTML="";
+leads.forEach((x,i)=>{
+box.innerHTML+=`
+<tr>
+<td>${x.name}</td>
+<td>${x.status}</td>
+<td><button onclick="delLead(${i})">Delete</button></td>
+</tr>`;
+});
+}
+
+function delLead(i){
+leads.splice(i,1);
+localStorage.leads=JSON.stringify(leads);
+showLeads();
+}
+
+
+function projects(){
+
+app.innerHTML=`
+<h1>Kanban Project</h1>
+<button onclick="addTask()">Add Task</button>
+<div class="kanban">
+<div class="column" id="todo" ondrop="drop(event)" ondragover="allow(event)">Todo</div>
+<div class="column" id="doing" ondrop="drop(event)" ondragover="allow(event)">Doing</div>
+<div class="column" id="done" ondrop="drop(event)" ondragover="allow(event)">Done</div>
+</div>`;
+
+renderTasks();
+
+}
+
+function addTask(){
+let t=prompt("Task");
+tasks.push({id:Date.now(),title:t,status:"todo"});
+localStorage.tasks=JSON.stringify(tasks);
+renderTasks();
+}
+
+function renderTasks(){
+["todo","doing","done"].forEach(x=>{
+document.getElementById(x).innerHTML=x;
+});
+tasks.forEach(t=>{
+document.getElementById(t.status).innerHTML+=`
+<div class="task" draggable="true" id="${t.id}" ondragstart="drag(event)">
+${t.title}
+</div>`;
+});
+}
+
+function allow(e){e.preventDefault()}
+function drag(e){e.dataTransfer.setData("id",e.target.id)}
+
+function drop(e){
+let id=e.dataTransfer.getData("id");
+let t=tasks.find(x=>x.id==id);
+t.status=e.currentTarget.id;
+localStorage.tasks=JSON.stringify(tasks);
+renderTasks();
+}
+
+
+function analytics(){
+app.innerHTML=`
+<h1>Analytics</h1>
+<div class="cards">
+<div class="card">Traffic 90%</div>
+<div class="card">Conversion 35%</div>
+<div class="card">Sales 5000</div>
+</div>`;
+}
+
+
+function ai(){
+app.innerHTML=`
+<h1>AI Copilot</h1>
+<textarea id="q" placeholder="Ask AI"></textarea>
+<button onclick="ask()">Send</button>
+<div id="ans"></div>`;
+}
+
+function ask(){
+let q=document.getElementById("q").value;
+document.getElementById("ans").innerHTML="<div class='card'>AI: "+q+" automation suggestion</div>";
+}
+
+
+function calendar(){
+app.innerHTML="<h1>Calendar</h1><div class='cards'>"+Array.from({length:30},(_,i)=>"<div class='card'>June "+(i+1)+"</div>").join("")+"</div>";
+}
+
+function team(){
+app.innerHTML="<h1>Team</h1><div class='card'><input placeholder='Email'><button>Invite</button></div>";
+}
+
+function files(){
+app.innerHTML="<h1>Files</h1><input type='file'>";
+}
+
+function settings(){
+app.innerHTML="<h1>Settings</h1><div class='card'>Account<br>Security<br>Notifications</div>";
+}
+
+dashboard();
+
+</script>
+
+</body>
+</html>
